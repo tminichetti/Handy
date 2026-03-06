@@ -460,6 +460,28 @@ impl TranscriptionManager {
         // Get current settings for configuration
         let settings = get_settings(&self.app_handle);
 
+        // Check if we should switch to the long audio model
+        let audio_duration_secs = (audio.len() as f64 / 16000.0) as u32;
+        let switched_model = if settings.long_audio_threshold > 0
+            && !settings.long_audio_model.is_empty()
+            && audio_duration_secs > settings.long_audio_threshold
+        {
+            let current = self.get_current_model();
+            if current.as_deref() != Some(&settings.long_audio_model) {
+                info!(
+                    "Audio duration {}s exceeds threshold {}s, switching to long audio model: {}",
+                    audio_duration_secs, settings.long_audio_threshold, settings.long_audio_model
+                );
+                let original_model = current.clone();
+                self.load_model(&settings.long_audio_model)?;
+                original_model
+            } else {
+                None
+            }
+        } else {
+            None
+        };
+
         // Perform transcription with the appropriate engine.
         // We use catch_unwind to prevent engine panics from poisoning the mutex,
         // which would make the app hang indefinitely on subsequent operations.
@@ -634,6 +656,14 @@ impl TranscriptionManager {
             info!("Transcription result is empty");
         } else {
             info!("Transcription result: {}", final_result);
+        }
+
+        // Switch back to the original model if we temporarily switched
+        if let Some(original_model_id) = switched_model {
+            info!("Switching back to original model: {}", original_model_id);
+            if let Err(e) = self.load_model(&original_model_id) {
+                warn!("Failed to switch back to original model: {}", e);
+            }
         }
 
         self.maybe_unload_immediately("transcription");

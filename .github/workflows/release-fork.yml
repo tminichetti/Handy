@@ -1,0 +1,58 @@
+name: "Release (Fork)"
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    permissions:
+      contents: write
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get version and tag
+        id: get-version
+        env:
+          COMMIT_SHA: ${{ github.sha }}
+        run: |
+          VERSION=$(grep -o '"version": "[^"]*"' src-tauri/tauri.conf.json | cut -d'"' -f4)
+          SHORT_SHA=$(echo "$COMMIT_SHA" | cut -c1-7)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v${VERSION}-${SHORT_SHA}" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: "./src-tauri -> target"
+
+      - name: Install frontend dependencies
+        run: bun install
+
+      - name: Download VAD model
+        run: |
+          mkdir -p src-tauri/resources/models
+          curl -o src-tauri/resources/models/silero_vad_v4.onnx https://blob.handy.computer/silero_vad_v4.onnx
+
+      - name: Build with Tauri
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HANDY_NO_APPLE_INTELLIGENCE: "1"
+        with:
+          tagName: ${{ steps.get-version.outputs.tag }}
+          releaseName: ${{ steps.get-version.outputs.tag }}
+          releaseDraft: false
+          prerelease: true
+          args: "--target aarch64-apple-darwin"

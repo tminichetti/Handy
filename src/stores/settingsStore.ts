@@ -133,6 +133,10 @@ const settingUpdaters: {
   app_language: (value) => commands.changeAppLanguageSetting(value as string),
   experimental_enabled: (value) =>
     commands.changeExperimentalEnabledSetting(value as boolean),
+  long_audio_threshold: (value) =>
+    commands.changeLongAudioThresholdSetting(value as number),
+  long_audio_model: (value) =>
+    commands.changeLongAudioModelSetting(value as string),
   show_tray_icon: (value) =>
     commands.changeShowTrayIconSetting(value as boolean),
 };

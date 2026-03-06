@@ -360,6 +360,10 @@ pub struct AppSettings {
     #[serde(default = "default_typing_tool")]
     pub typing_tool: TypingTool,
     pub external_script_path: Option<String>,
+    #[serde(default)]
+    pub long_audio_threshold: u32,
+    #[serde(default)]
+    pub long_audio_model: String,
 }
 
 fn default_model() -> String {
@@ -724,6 +728,8 @@ pub fn get_default_settings() -> AppSettings {
         paste_delay_ms: default_paste_delay_ms(),
         typing_tool: default_typing_tool(),
         external_script_path: None,
+        long_audio_threshold: 0,
+        long_audio_model: String::new(),
     }
 }
 

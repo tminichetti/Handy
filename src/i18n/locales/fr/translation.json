@@ -198,6 +198,21 @@
       "pushToTalk": {
         "label": "Appuyer pour parler",
         "description": "Maintenez pour enregistrer, relâchez pour arrêter"
+      },
+      "longAudio": {
+        "title": "Modèle audio long",
+        "description": "Utiliser un modèle différent lorsque l'audio dépasse un seuil de durée",
+        "threshold": {
+          "title": "Seuil de durée",
+          "description": "Changer de modèle lorsque l'audio dépasse cette durée (en secondes). Mettre à 0 pour désactiver.",
+          "unit": "secondes"
+        },
+        "model": {
+          "title": "Modèle alternatif",
+          "description": "Le modèle à utiliser pour les enregistrements longs",
+          "placeholder": "Sélectionner un modèle",
+          "none": "Désactivé"
+        }
       }
     },
     "sound": {

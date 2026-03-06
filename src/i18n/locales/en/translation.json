@@ -180,6 +180,21 @@
       "pushToTalk": {
         "label": "Push To Talk",
         "description": "Hold to record, release to stop"
+      },
+      "longAudio": {
+        "title": "Long Audio Model",
+        "description": "Use a different model when audio exceeds a duration threshold",
+        "threshold": {
+          "title": "Duration Threshold",
+          "description": "Switch model when audio is longer than this (in seconds). Set to 0 to disable.",
+          "unit": "seconds"
+        },
+        "model": {
+          "title": "Alternative Model",
+          "description": "The model to use for long audio recordings",
+          "placeholder": "Select a model",
+          "none": "Disabled"
+        }
       }
     },
     "models": {
